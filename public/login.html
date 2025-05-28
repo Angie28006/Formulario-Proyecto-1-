@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Iniciar Sesión</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+    h2 {
+      text-align: center;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    input[type="submit"], button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    input[type="submit"]:hover, button:hover {
+      background-color: #0056b3;
+    }
+    .message {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Iniciar Sesión</h2>
+    <form id="loginForm">
+      <input type="text" id="usuario" name="usuario" placeholder="Usuario" required>
+      <input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required>
+      <input type="submit" value="Ingresar">
+    </form>
+    <button onclick="mostrarRegistro()">¿No tienes cuenta? Regístrate</button>
+    <div class="message" id="loginMensaje"></div>
+  </div>
+
+  <div class="container hidden" id="registroContainer">
+    <h2>Registrarse</h2>
+    <form id="registroForm">
+      <input type="text" id="usuarioReg" name="usuario" placeholder="Nuevo usuario" required>
+      <input type="password" id="contrasenaReg" name="contrasena" placeholder="Nueva contraseña" required>
+      <input type="submit" value="Registrarse">
+    </form>
+    <button onclick="mostrarLogin()">Ya tengo cuenta</button>
+    <div class="message" id="registroMensaje"></div>
+  </div>
+
+  <script>
+    function mostrarRegistro() {
+      document.querySelector('.container').classList.add('hidden');
+      document.getElementById('registroContainer').classList.remove('hidden');
+    }
+
+    function mostrarLogin() {
+      document.querySelector('.container').classList.remove('hidden');
+      document.getElementById('registroContainer').classList.add('hidden');
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const formData = new URLSearchParams(new FormData(this));
+      fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
+      })
+      .then(res => res.text())
+      .then(data => {
+        const mensaje = document.getElementById('loginMensaje');
+        mensaje.textContent = data;
+        mensaje.style.color = data.toLowerCase().includes('exitoso') ? 'green' : 'red';
+      });
+    });
+
+    document.getElementById('registroForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const formData = new URLSearchParams(new FormData(this));
+      fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
+      })
+      .then(res => res.text())
+      .then(data => {
+        const mensaje = document.getElementById('registroMensaje');
+        mensaje.textContent = data;
+        mensaje.style.color = data.toLowerCase().includes('exitoso') ? 'green' : 'red';
+        if (data.toLowerCase().includes('exitoso')) {
+          setTimeout(() => {
+            mostrarLogin();
+          }, 1500);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
